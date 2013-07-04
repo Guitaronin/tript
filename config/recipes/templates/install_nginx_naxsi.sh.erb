@@ -1,0 +1,54 @@
+mkdir ~/src
+cd ~/src
+wget http://nginx.org/download/nginx-1.0.11.tar.gz
+wget http://naxsi.googlecode.com/files/naxsi-0.42.tar.gz
+tar xvzf nginx-1.0.11.tar.gz 
+tar xvzf naxsi-0.42.tar.gz
+cd nginx-1.0.11/
+sudo yum install pcre pcre-devel zlib zlib-devel openssl openssl-devel -y 
+./configure --conf-path=/etc/nginx/nginx.conf  --add-module=../naxsi-0.42/naxsi_src/   --error-log-path=/var/log/nginx/error.log     --http-client-body-temp-path=/var/lib/nginx/body     --http-fastcgi-temp-path=/var/lib/nginx/fastcgi     --http-log-path=/var/log/nginx/access.log     --http-proxy-temp-path=/var/lib/nginx/proxy     --lock-path=/var/lock/nginx.lock     --pid-path=/var/run/nginx.pid     --with-http_ssl_module     --without-mail_pop3_module     --without-mail_smtp_module     --without-mail_imap_module     --without-http_uwsgi_module     --without-http_scgi_module     --with-ipv6  --prefix=/usr
+make
+sudo make install
+
+
+cp ~/src/naxsi-0.42/naxsi_config/naxsi_core.rules /etc/nginx/
+
+cat >> /path/to/site.conf << EOL
+  server {
+    proxy_set_header Proxy-Connection "";
+    listen       *:80;
+    access_log  /tmp/nginx_access.log;
+    error_log  /tmp/nginx_error.log debug;
+
+    location / {
+      include    /etc/nginx/nbs.rules;
+      proxy_pass http://194.213.124.111/;
+      proxy_set_header Host www.nbs-system.com;
+    }
+
+    #This location is where, in learning mode, to-be-forbidden requests will be "copied"
+    #In non-learning mode, it's where denied request will land, so feel free to do whatever you want, 
+    #return 418 I'm a teapot, forward to a custom webpage with 
+    #a captcha to help track false-positives (see contrib for that),
+    #whatever you want to do !
+    location /RequestDenied {
+      proxy_pass http://127.0.0.1:4242;
+    }
+  }
+EOL
+
+cat >> /etc/nginx/nbs.rules << EOL
+LearningMode;
+SecRulesEnabled;
+#SecRulesDisabled;
+DeniedUrl "/RequestDenied";
+
+include "/tmp/naxsi_rules.tmp";
+
+## check rules
+CheckRule "$SQL >= 8" BLOCK;
+CheckRule "$RFI >= 8" BLOCK;
+CheckRule "$TRAVERSAL >= 4" BLOCK;
+CheckRule "$EVADE >= 4" BLOCK;
+CheckRule "$XSS >= 8" BLOCK;
+EOL

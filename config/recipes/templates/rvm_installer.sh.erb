@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# curl -L get.rvm.io | bash -s stable
+sudo /usr/sbin/usermod -a -G rvm <%= user %>
+source "$HOME/.rvm/scripts/rvm" 
+# rvm install <%= ruby_version %>
+# rvm use <%= ruby_version %> --default
+# rvm install rubygems 1.5.3
+# gem install bundler --no-ri --no-rdoc

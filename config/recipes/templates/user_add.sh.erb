@@ -1,0 +1,29 @@
+#!/usr/bin/env sh
+
+sudo /usr/sbin/groupadd admin
+sudo /usr/sbin/adduser -G admin <%= user %>
+sudo /usr/sbin/usermod -a -G wheel <%= user %>
+# sudo /usr/sbin/usermod -a -G rvm <%= user %>
+sudo passwd <%= user %>
+ # <%= random_password %>
+
+su <%= user %>
+
+mkdir -p /home/<%= user %>/.ssh
+touch /home/<%= user %>/.ssh/authorized_keys
+
+auth_keys="/home/<%= user %>/.ssh/authorized_keys"
+cat >> ${auth_keys} << EOL
+<%= public_keys %>
+EOL
+
+chown -R <%= user %>:<%= user %> /home/<%= user %>/.ssh
+chmod 700 /home/<%= user %>/.ssh
+chmod 600 /home/<%= user %>/.ssh/authorized_keys
+
+# AS ROOT
+# mv /etc/sudoers /etc/sudoers.bak
+# mv /tmp/sudoers /etc/sudoers
+# chmod 0440 /etc/sudoers
+# chown root:root /etc/sudoers
+
