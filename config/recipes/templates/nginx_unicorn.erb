@@ -39,19 +39,6 @@ server {
     proxy_pass http://unicorn;
   }
 
-  location ~ ^/collector/(.*)$ {
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header Host $http_host;
-    # proxy_set_header XRealIP  $remote_addr;
-
-    proxy_redirect off;
-    proxy_buffering on;
-
-    proxy_pass http://escobar_collector;
-    expires -1;
-    break;
-  }
-
   error_page 500 502 503 504 /500.html;
 
   location = /favicon.ico {
