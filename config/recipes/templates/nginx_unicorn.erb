@@ -3,19 +3,6 @@ upstream unicorn {
   server unix:/tmp/unicorn.<%= application %>.sock fail_timeout=0;
 }
 
-upstream escobar_collector {
-  server 127.0.0.1:9393;
-  server 127.0.0.1:9394;
-  server 127.0.0.1:9395;
-  server 127.0.0.1:9396;
-}
-
-# server {
-#         listen   80;
-#         server_name  www.app.com;
-#         rewrite ^/(.*) http://app.com/$1 permanent;
-# }
-
 
 server {
   listen 80 default deferred;
